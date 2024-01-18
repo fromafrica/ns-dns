@@ -1,0 +1,17 @@
+{
+  "name": "ns-dns",
+  "version": "1.1.0",
+  "description": "",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dns.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dns-packet": "^5.6.1",
+    "node-fetch": "^3.3.2"
+  }
+}
