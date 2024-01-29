@@ -3,11 +3,11 @@ import dgram from 'node:dgram'
 import dnsPacket from 'dns-packet'
 import fetch from 'node-fetch'
 
-const server = dgram.createSocket('udp4');
+const server = dgram.createSocket('udp4')
 
 server.on('error', (err) => {
     console.error(`Server error:\n${err.stack}`);
-    server.close();
+    server.close()
 });
 
 server.on('message', async (msg, rinfo) => {
@@ -22,13 +22,13 @@ server.on('message', async (msg, rinfo) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer zj5jyr4wqps4xfaiviy5`
+                    'Authorization': `Bearer ${ process.env.TOKEN }`
                 },
                 body: JSON.stringify({ domain: query.questions[0].name, type: query.questions[0].type })
-            };
+            }
 
             try {
-                const fetchResponse = await fetch(`https://ns-cache.fromafri.ca/dns-query`, requestOptions);
+                const fetchResponse = await fetch(process.env.REMOTE, requestOptions)
                     if (fetchResponse.ok) {
 
                         const fres = await fetchResponse.json();
@@ -43,7 +43,7 @@ server.on('message', async (msg, rinfo) => {
 
                         if (fres.status === "200") {
 
-                            console.log(fres);
+                            console.log(fres)
                             
                             // Respond authoritatively
                             let obj = {
@@ -59,7 +59,7 @@ server.on('message', async (msg, rinfo) => {
                                     data: fres.record.record // for A record, it's a string containing IP, for MX record, it's an array of objects
                                 }],
                             };
-                            response = dnsPacket.encode(obj);
+                            response = dnsPacket.encode(obj)
 
                         } else {
                             throw({message: 'unknown DNS query error', query: query})
@@ -76,9 +76,9 @@ server.on('message', async (msg, rinfo) => {
             throw({message: 'invalid query', query: query})
         }
 
-        server.send(response, rinfo.port, rinfo.address);
+        server.send(response, rinfo.port, rinfo.address)
     } catch (error) {
-        console.error(error.message || 'unknown error');
+        console.error(error.message || 'unknown error')
 
         // For other domains, return NXDOMAIN
         response = dnsPacket.encode({
@@ -86,15 +86,15 @@ server.on('message', async (msg, rinfo) => {
             id: error.query.id || '',
             questions: error.query.questions || '',
             flags: 3
-        });
-        server.send(response, rinfo.port, rinfo.address);
+        })
+        server.send(response, rinfo.port, rinfo.address)
     }
-});
+})
 
 
 server.on('listening', () => {
-    const address = server.address();
-    console.log(`Server listening on ${address.address}:${address.port}`);
-});
+    const address = server.address()
+    console.log(`Server listening on ${address.address}:${address.port}`)
+})
 
-server.bind(3053, '0.0.0.0');
+server.bind(3053, '0.0.0.0')

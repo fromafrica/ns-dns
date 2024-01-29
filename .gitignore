@@ -2,3 +2,4 @@ node_modules/
 dns-query.bin
 output.bin
 package-lock.json
+.env
